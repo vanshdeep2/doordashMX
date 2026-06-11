@@ -30,6 +30,7 @@ export default function ContactSearch() {
   const [searchParams] = useSearchParams()
   const prefilledCall = searchParams.get('call')
   const prefilledCritical = searchParams.get('criticalOnly') === 'true'
+  const prefilledAgent = searchParams.get('agent')
 
   const [calls, setCalls] = useState([])
   const [loading, setLoading] = useState(true)
@@ -97,12 +98,19 @@ export default function ContactSearch() {
 
   const prefilledHandled = useRef(false)
   const criticalHandled = useRef(false)
+  const agentHandled = useRef(false)
 
   useEffect(() => {
     if (loading || !prefilledCritical || criticalHandled.current) return
     criticalHandled.current = true
     setFilters((f) => ({ ...f, criticalOnly: true }))
   }, [loading, prefilledCritical])
+
+  useEffect(() => {
+    if (loading || !prefilledAgent || agentHandled.current) return
+    agentHandled.current = true
+    setFilters((f) => ({ ...f, agent: prefilledAgent }))
+  }, [loading, prefilledAgent])
 
   useEffect(() => {
     if (loading || !prefilledCall || prefilledHandled.current) return
@@ -195,7 +203,7 @@ export default function ContactSearch() {
               <option value="all">All scores</option>
               <option value="autofail">Auto-fail only</option>
               <option value="below70">Below 70</option>
-              <option value="70to90">70 – 90</option>
+              <option value="70to90">70 - 90</option>
               <option value="above90">Above 90</option>
             </select>
           </div>

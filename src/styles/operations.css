@@ -68,6 +68,11 @@
 .val-red { color: var(--red); } .val-green { color: var(--green); } .val-amber { color: var(--amber); }
 .chg-red { color: var(--red); } .chg-green { color: var(--green); } .chg-amber { color: var(--amber); }
 .coaching-health { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+.coaching-health--compact { gap: 10px; margin-bottom: 20px; }
+.coaching-health--compact .health-stat-card { padding: 10px 12px; }
+.coaching-health--compact .health-stat-lbl { font-size: 9px; margin-bottom: 2px; }
+.coaching-health--compact .health-stat-val { font-size: 22px; letter-spacing: -0.5px; margin-bottom: 2px; }
+.coaching-health--compact .health-stat-sub { font-size: 10px; }
 .health-stat-card {
   background: var(--white); border: 0.5px solid var(--border); border-radius: 8px;
   padding: 16px 18px; text-align: center; box-shadow: 0 1px 4px rgba(26,26,46,0.04);

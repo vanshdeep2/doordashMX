@@ -11,27 +11,29 @@ export const TREND = {
   csat: [3.20, 3.35, 3.30, 3.92, 3.91],
   er: [1.96, 7.57, 3.27, 17.25, 17.47],
 }
+export const T1_RESOLUTION = [98.0, 96.8, 97.0, 93.5, 82.5]
+export const COACHING_DEPLOYMENT = [0, 0, 90, 90, 90]
 export const CF_WEEKLY = [25, 27, 29, 0, 0]
 export const CF_BAR_COLORS = ['#c0392b', '#c0392b', '#c0392b', '#1a7a4a', '#1a7a4a']
 
 export const COACHING_HEALTH_STATS = [
-  { label: 'Deployed', value: '38', valueClass: '', sub: 'AI-generated sessions' },
-  { label: 'Taken up', value: '24', valueClass: 'val-green', sub: 'Agent opened in QLens' },
-  { label: 'In progress', value: '9', valueClass: 'val-amber', sub: 'Active coaching' },
-  { label: 'Not touched', value: '0', valueClass: 'val-red', sub: 'All agents engaged this period' },
+  { label: 'Deployed', value: '38', valueClass: '', sub: '100% of sessions generated' },
+  { label: 'Taken up', value: '24', valueClass: 'val-green', sub: '63% of deployed' },
+  { label: 'In progress', value: '9', valueClass: 'val-amber', sub: '24% of deployed' },
+  { label: 'Not touched', value: '0', valueClass: 'val-red', sub: '0% of deployed' },
 ]
 
 export const HERO_CHIPS = [
-  { text: 'NPS +44 points · weeks 3→4', className: 'chip-green', dotColor: '#4ade80' },
-  { text: 'FCR +13% · weeks 3→4', className: 'chip-green', dotColor: '#4ade80' },
+  { text: 'NPS +44 points · mid-May period', className: 'chip-green', dotColor: '#4ade80' },
+  { text: 'FCR +13% · mid-May period', className: 'chip-green', dotColor: '#4ade80' },
   { text: 'Legal escalation bottleneck · structural issue', className: 'chip-amber', dotColor: '#fbbf24' },
 ]
 
 export const HERO_STATS = [
-  { value: '44pts', label: 'NPS improvement weeks 3-4' },
-  { value: '13%', label: 'FCR improvement weeks 3-4' },
-  { value: '0.62', label: 'CSAT improvement weeks 3-4' },
-  { value: 'Week 3', label: 'Coaching intervention week' },
+  { value: '44pts', label: 'NPS improvement mid-May' },
+  { value: '13%', label: 'FCR improvement mid-May' },
+  { value: '0.62', label: 'CSAT improvement mid-May' },
+  { value: 'Daily', label: 'Coaching cadence' },
   { value: '2 of 4', label: 'Cross-KPI patterns improving' },
 ]
 
@@ -91,6 +93,5 @@ export function getMetricsDrawerSections() {
     { id: 'kpi-nps', label: 'Net Promoter Score', value: '39.05', valueClass: 'val-amber', sub: 'Target: 40', change: '-2.38% vs target', changeClass: 'chg-amber', dataKey: 'nps', color: '#1a7a4a', note: 'Dramatic improvement post coaching - week 4 exceeded target for first time' },
     { id: 'kpi-fcr-drawer', label: 'First Contact Resolution', value: '46.97%', valueClass: 'val-green', sub: 'No target set · Trending positive', dataKey: 'fcr', color: '#1a7a4a', note: 'Consistent improvement across all 5 weeks - structured troubleshooting protocols driving resolution quality' },
     { id: 'kpi-csat', label: 'Customer Satisfaction Score', value: '3.91', valueClass: 'val-amber', sub: 'Target: 4.0', change: '-2.36% vs target', changeClass: 'chg-amber', dataKey: 'csat', color: '#d97706', note: 'Strong recovery from week 3 low - week 3 dip followed by sharp improvement aligns with coaching deployment' },
-    { id: 'kpi-er', label: 'Escalation Rate', value: '17.47%', valueClass: 'val-red', sub: 'Target: 10%', change: '+74.7% vs target', changeClass: 'chg-red', dataKey: 'er', color: '#c0392b', note: 'Legal and policy contacts still drive mandatory T1 escalations at the system level - separate from the coaching-success ER pattern above.', alert: 'ER rose from 1.96% (week 1) to 17.47% (week 5). This is not deterioration - it reflects coaching success. Agents who previously escalated prematurely showed artificially low ER. Post-coaching they attempt T1 resolution first and escalate only when genuinely needed, producing an appropriate ER.' },
   ]
 }

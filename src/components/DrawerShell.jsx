@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import '../styles/operations.css'
 
-export default function DrawerShell({ open, onClose, title, subtitle, children }) {
+export default function DrawerShell({ open, onClose, title, subtitle, children, panelClassName = '' }) {
   useEffect(() => {
     if (!open) return undefined
     function onKey(e) {
@@ -16,7 +16,7 @@ export default function DrawerShell({ open, onClose, title, subtitle, children }
   return (
     <>
       <div className="drawer-overlay open" onClick={onClose} role="presentation" />
-      <div className="drawer open">
+      <div className={`drawer open ${panelClassName}`.trim()}>
         <div className="drawer-header">
           <div className="drawer-title">{title}</div>
           <button type="button" className="drawer-close" onClick={onClose} aria-label="Close">

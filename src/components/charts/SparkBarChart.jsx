@@ -1,4 +1,5 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import CoachingPeriodBand from './CoachingPeriodBand'
 import CoachingWeekMarker from './CoachingWeekMarker'
 import '../../styles/components.css'
 
@@ -18,10 +19,14 @@ export default function SparkBarChart({
   data,
   barColors,
   coachingWeekLabel,
+  coachingPeriodBand,
+  coachingPeriodStart,
+  coachingPeriodEnd,
   height = 140,
 }) {
   const chartData = labels.map((label, i) => ({ label, value: data[i], color: barColors[i] }))
-  const topMargin = coachingWeekLabel ? 22 : 8
+  const hasBand = coachingPeriodBand && coachingPeriodStart && coachingPeriodEnd
+  const topMargin = hasBand || coachingWeekLabel ? 26 : 8
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -36,7 +41,12 @@ export default function SparkBarChart({
           allowDecimals={false}
         />
         <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-        {coachingWeekLabel && <CoachingWeekMarker weekLabel={coachingWeekLabel} variant="ccm" />}
+        {hasBand && (
+          <CoachingPeriodBand startLabel={coachingPeriodStart} endLabel={coachingPeriodEnd} />
+        )}
+        {!hasBand && coachingWeekLabel && (
+          <CoachingWeekMarker weekLabel={coachingWeekLabel} variant="ccm" />
+        )}
         <Bar dataKey="value" radius={[4, 4, 0, 0]} isAnimationActive={false}>
           {chartData.map((entry) => (
             <Cell key={entry.label} fill={entry.color} />

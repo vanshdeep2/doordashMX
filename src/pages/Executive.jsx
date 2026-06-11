@@ -447,7 +447,7 @@ export default function Executive() {
                     <div className="score-tooltip">
                       <div className="score-tooltip-title">Health Score - how it&apos;s calculated</div>
                       <div className="score-tooltip-row">
-                        <span className="score-tooltip-kpis">FCR – First Contact Resolution</span>
+                        <span className="score-tooltip-kpis">FCR - First Contact Resolution</span>
                         <span className="score-tooltip-wt">45%</span>
                       </div>
                       <div className="score-tooltip-row">
@@ -455,7 +455,7 @@ export default function Executive() {
                         <span className="score-tooltip-wt">20%</span>
                       </div>
                       <div className="score-tooltip-row">
-                        <span className="score-tooltip-kpis">AHT – Average Handle Time</span>
+                        <span className="score-tooltip-kpis">AHT - Average Handle Time</span>
                         <span className="score-tooltip-wt">15%</span>
                       </div>
                       <div className="score-tooltip-row">
@@ -463,17 +463,17 @@ export default function Executive() {
                         <span className="score-tooltip-wt">10%</span>
                       </div>
                       <div className="score-tooltip-row">
-                        <span className="score-tooltip-kpis">RCR – Repeat Contact Rate</span>
+                        <span className="score-tooltip-kpis">RCR - Repeat Contact Rate</span>
                         <span className="score-tooltip-wt">10%</span>
                       </div>
                       <div className="score-tooltip-ranges">
                         <div className="score-tooltip-range">
                           <div className="score-tooltip-range-dot" style={{ background: '#1a7a4a' }} />
-                          80–100 · Healthy
+                          80-100 · Healthy
                         </div>
                         <div className="score-tooltip-range">
                           <div className="score-tooltip-range-dot" style={{ background: '#d97706' }} />
-                          60–79 · Watch
+                          60-79 · Watch
                         </div>
                         <div className="score-tooltip-range">
                           <div className="score-tooltip-range-dot" style={{ background: '#c0392b' }} />

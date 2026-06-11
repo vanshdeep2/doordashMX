@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import AgentTlModal from '../components/AgentTlModal'
 import Nav from '../components/Nav'
 import FlowBar from '../components/FlowBar'
 import HealthStatCard from '../components/HealthStatCard'
@@ -21,16 +22,45 @@ import '../styles/teamlead.css'
 export default function TeamLead() {
   const navigate = useNavigate()
   const [agentsDrawerOpen, setAgentsDrawerOpen] = useState(false)
+  const [agentTlModalOpen, setAgentTlModalOpen] = useState(false)
+  const [agentTlModalSlug, setAgentTlModalSlug] = useState(null)
+  const [calls, setCalls] = useState([])
+
+  useEffect(() => {
+    fetch('/data/contact_search_data.json')
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load contact data')
+        return r.json()
+      })
+      .then(setCalls)
+      .catch(() => setCalls([]))
+  }, [])
 
   const previewAgents = useMemo(
     () => SPARK_PREVIEW_SLUGS.map((slug) => SPARK_DATA.find((a) => a.slug === slug)).filter(Boolean),
     [],
   )
 
+  const openAgentModal = (slug) => {
+    setAgentTlModalSlug(slug)
+    setAgentTlModalOpen(true)
+  }
+
   const matrixRows = MATRIX_ROWS.map((row) => {
     const deltaText = row.deltaClass === 'delta-flat' ? '0.0' : `${row.delta > 0 ? '+' : ''}${row.delta.toFixed(1)}`
     return (
-      <tr key={row.slug} onClick={() => navigate(`/agent/${row.slug}`)} role="link" tabIndex={0}>
+      <tr
+        key={row.slug}
+        onClick={() => openAgentModal(row.slug)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            openAgentModal(row.slug)
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
         <td>{row.name}</td>
         <td>{row.qaW5.toFixed(1)}</td>
         <td>{row.qaW1.toFixed(1)}</td>
@@ -125,7 +155,7 @@ export default function TeamLead() {
         <div className="connector">Quality Score Trends · All Agents · 5 Weeks</div>
         <div className="chart-section-head">
           <p className="section-sublabel">
-            Coaching deployed at week 3 · TL priority agents shown · QA score 0–100 scale
+            TL priority agents shown · QA score 0-100 scale
           </p>
           <button type="button" className="metrics-cta" onClick={() => setAgentsDrawerOpen(true)}>
             See all agents →
@@ -174,12 +204,22 @@ export default function TeamLead() {
         open={agentsDrawerOpen}
         onClose={() => setAgentsDrawerOpen(false)}
         title="Quality Score Trends · All Agents"
-        subtitle="5 weeks · Coaching deployed at week 3 · Click an agent to open coaching view"
+        subtitle="5 weeks · Click an agent to open coaching view"
       >
         {SPARK_DATA.map((agent) => (
           <SparkAgentCard key={agent.slug} agent={agent} variant="drawer" />
         ))}
       </DrawerShell>
+
+      <AgentTlModal
+        open={agentTlModalOpen}
+        onClose={() => {
+          setAgentTlModalOpen(false)
+          setAgentTlModalSlug(null)
+        }}
+        slug={agentTlModalSlug}
+        calls={calls}
+      />
     </>
   )
 }

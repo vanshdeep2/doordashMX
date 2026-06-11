@@ -9,7 +9,6 @@ import SparklineChart from '../components/charts/SparklineChart'
 import SparkBarChart from '../components/charts/SparkBarChart'
 import { CALLS_PILL, LIVE_LABEL } from '../data/executiveConstants'
 import {
-  AHT_WASTE,
   BEST_PRACTICE_CARDS,
   CF_BAR_COLORS,
   CF_WEEKLY,
@@ -21,6 +20,7 @@ import {
   HERO_STATS,
   PATTERN_CARDS,
   QUALITY_SUMMARY,
+  T1_RESOLUTION,
   TREND,
   WK_LABELS,
   getMetricsDrawerSections,
@@ -29,7 +29,14 @@ import { AGENT_SLUGS } from '../data/contactSearchConstants'
 import { formatAht, fmtPct } from '../utils/format'
 import '../styles/ccm.css'
 
-const coachingWeekLabel = WK_LABELS[COACHING_WEEK_INDEX]
+const coachingPeriodStart = WK_LABELS[COACHING_WEEK_INDEX]
+const coachingPeriodEnd = WK_LABELS[WK_LABELS.length - 1]
+
+const chartBandProps = {
+  coachingPeriodBand: true,
+  coachingPeriodStart,
+  coachingPeriodEnd,
+}
 
 function DrawerTrendChart({ dataKey, color, formatValue }) {
   return (
@@ -40,7 +47,7 @@ function DrawerTrendChart({ dataKey, color, formatValue }) {
         color={color}
         height={130}
         formatValue={formatValue}
-        coachingWeekLabel={coachingWeekLabel}
+        {...chartBandProps}
       />
     </div>
   )
@@ -53,7 +60,7 @@ export default function CCM() {
 
   const formatDrawerValue = (section, v) => {
     if (section.dataKey === 'aht') return formatAht(v)
-    if (section.dataKey === 'fcr' || section.dataKey === 'er') return `${v.toFixed(2)}%`
+    if (section.dataKey === 'fcr') return `${v.toFixed(2)}%`
     return v.toFixed(2)
   }
 
@@ -72,11 +79,11 @@ export default function CCM() {
           <div className="hero-left">
             <div className="hero-eyebrow">QiQ Operations Intelligence · Week 5 of 5</div>
             <div className="hero-headline">
-              Coaching intervention at week 3 drives measurable improvement - NPS up 44 points, FCR up 13% in two weeks
+              Ongoing QiQ coaching intervention drives measurable improvement - NPS up 44 points, FCR up 13% in the analysis period
             </div>
             <div className="hero-narrative">
               <p>
-                The coaching deployment at week 3 has produced the clearest multi-KPI improvement seen in this analysis period - NPS moved from -1.12 in week 3 to 43.69 in week 4, FCR improved from 33.7% to 44.7%, and CSAT recovered from 3.30 to 3.92.
+                Daily QiQ-generated coaching sessions have produced the clearest multi-KPI improvement seen in this analysis period - NPS moved from -1.12 to 43.69, FCR improved from 33.7% to 44.7%, and CSAT recovered from 3.30 to 3.92 as agents applied targeted micro-coaching on every shift.
               </p>
               <p>
                 Legal and policy escalation contacts remain a structural bottleneck - 100% of these contacts escalate at T1 level, suppressing FCR and driving negative NPS and CSAT scores that are unresolvable through agent coaching alone.
@@ -112,7 +119,7 @@ export default function CCM() {
 
         <div className="connector">Performance Trends · 5 Weeks</div>
         <div className="chart-section-head">
-          <p className="section-sublabel">Coaching deployed at week 3 - improvement visible from week 4</p>
+          <p className="section-sublabel">Coaching intervention period highlighted on charts</p>
           <button type="button" className="metrics-cta" onClick={() => setMetricsDrawerOpen(true)}>
             See all metrics →
           </button>
@@ -135,7 +142,7 @@ export default function CCM() {
                 color="#d97706"
                 height={140}
                 formatValue={formatAht}
-                coachingWeekLabel={coachingWeekLabel}
+                {...chartBandProps}
               />
             </div>
             <div className="chart-note">
@@ -159,13 +166,36 @@ export default function CCM() {
                 color="#1a7a4a"
                 height={140}
                 formatValue={fmtPct}
-                coachingWeekLabel={coachingWeekLabel}
+                {...chartBandProps}
               />
             </div>
             <div className="chart-note">
               Consistent improvement across all 5 weeks - structured troubleshooting protocols driving resolution quality
             </div>
           </button>
+
+          <div className="chart-card" id="kpi-t1">
+            <div className="chart-top">
+              <div className="chart-top-main">
+                <div className="chart-title">T1 Resolution Rate</div>
+                <div className="chart-current val-green">82.5%</div>
+                <div className="chart-meta">Contacts resolved at T1 without escalation</div>
+              </div>
+            </div>
+            <div className="chart-area">
+              <SparklineChart
+                labels={WK_LABELS}
+                data={T1_RESOLUTION}
+                color="#1a7a4a"
+                height={140}
+                formatValue={fmtPct}
+                {...chartBandProps}
+              />
+            </div>
+            <div className="chart-note">
+              T1 resolution rate shows the proportion of contacts handled without escalation. The recent decrease reflects coaching success - agents are now attempting genuine resolution before escalating, rather than routing contacts immediately.
+            </div>
+          </div>
 
           <button
             type="button"
@@ -184,8 +214,8 @@ export default function CCM() {
                 labels={WK_LABELS}
                 data={CF_WEEKLY}
                 barColors={CF_BAR_COLORS}
-                coachingWeekLabel={coachingWeekLabel}
                 height={140}
+                {...chartBandProps}
               />
             </div>
             <div className="chart-note">
@@ -207,26 +237,10 @@ export default function CCM() {
         </div>
 
         <div className="connector">Coaching Health · Week 5</div>
-        <div className="coaching-health">
+        <div className="coaching-health coaching-health--compact">
           {COACHING_HEALTH_STATS.map((stat) => (
             <HealthStatCard key={stat.label} {...stat} />
           ))}
-        </div>
-
-        <div className="connector">AHT Waste Cost · Cluster Output</div>
-        <p className="section-sublabel">Validated ops cluster figures for handle-time waste over the 5-week period</p>
-        <div className="aht-waste-panel">
-          <div className="aht-waste-grid">
-            {AHT_WASTE.items.map((item) => (
-              <div key={item.label} className="aht-waste-item">
-                <div className="aht-waste-lbl">{item.label}</div>
-                <div className={`aht-waste-val ${item.valueClass}`}>{item.value}</div>
-              </div>
-            ))}
-          </div>
-          <p className="aht-waste-delta">
-            <strong>Down $26.43/week from week 1</strong> - coaching-driven AHT efficiency
-          </p>
         </div>
 
         <div className="connector">Coaching Impact Ledger · 5-Week Period</div>
@@ -296,7 +310,7 @@ export default function CCM() {
         open={metricsDrawerOpen}
         onClose={() => setMetricsDrawerOpen(false)}
         title="Performance Trends - All Metrics"
-        subtitle="5-week trends with coaching deployed at week 3. All metrics include the coaching intervention marker."
+        subtitle="5-week trends with coaching intervention period highlighted on all charts."
       >
         {drawerSections.map((section) => (
           <div key={section.id} className="drawer-section" id={section.id}>
