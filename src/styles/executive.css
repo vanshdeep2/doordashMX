@@ -92,8 +92,13 @@
 .fin-body { display: flex; gap: 16px; align-items: center; }
 .donut-wrap { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
 .donut-centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-.donut-total { font-size: 16px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; text-align: center; }
+.donut-total {
+  font-size: 14px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.15;
+  text-align: center; max-width: 76px; padding: 0 4px;
+}
 .donut-total-lbl { font-size: 10px; color: var(--light); margin-top: 2px; }
+.donut-wrap--drawer { width: 148px; height: 148px; }
+.donut-wrap--drawer .donut-total { font-size: 15px; max-width: 88px; }
 .fin-legend { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .leg-item { display: flex; align-items: center; gap: 7px; }
 .leg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
@@ -110,8 +115,42 @@
 .net-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.52); margin-bottom: 8px; }
 .net-val { font-size: 36px; font-weight: 700; color: white; letter-spacing: -2px; line-height: 1; margin-bottom: 4px; }
 .net-sub { font-size: 12px; color: rgba(255,255,255,0.62); }
+.net-annualised {
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.72);
+  margin-top: 10px; padding-top: 10px; border-top: 0.5px solid rgba(255,255,255,0.12);
+}
 .coq-assumptions { font-size: 11px; color: var(--light); line-height: 1.55; margin-bottom: 28px; }
 .coq-assumptions-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+
+.ltv-section-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  margin: -8px 0 16px;
+}
+.ltv-section-sublabel { margin: 0; flex: 1; }
+.ltv-assumptions-cta { flex-shrink: 0; white-space: nowrap; }
+.ltv-assumptions-card {
+  font-size: 11px; color: var(--muted); line-height: 1.55;
+  background: #f5f5f3; border: 0.5px solid var(--border); border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 28px;
+}
+.ltv-breakdown-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+}
+.ltv-breakdown-donut-cell {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg); border: 0.5px solid var(--border); border-radius: 7px;
+  padding: 12px; min-height: 172px;
+}
+.ltv-breakdown-bucket { margin-bottom: 0; height: 100%; }
+.ltv-breakdown-desc { margin-top: 6px; }
+@keyframes ltvBucketIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ltv-breakdown-grid .ltv-breakdown-donut-cell { animation: ltvBucketIn 0.3s ease both; }
+.ltv-breakdown-grid .ltv-breakdown-bucket:nth-child(2) { animation: ltvBucketIn 0.3s ease 0.06s both; }
+.ltv-breakdown-grid .ltv-breakdown-bucket:nth-child(3) { animation: ltvBucketIn 0.3s ease 0.12s both; }
+.ltv-breakdown-grid .ltv-breakdown-bucket:nth-child(4) { animation: ltvBucketIn 0.3s ease 0.18s both; }
 .metrics-cta {
   font-size: 12px; font-weight: 600; color: var(--muted); background: none; border: none;
   font-family: inherit; cursor: pointer; padding: 0 4px; white-space: nowrap; transition: color 0.15s; flex-shrink: 0;
@@ -172,8 +211,12 @@
 .watch-title { font-size: 11px; font-weight: 500; color: var(--dark); line-height: 1.35; margin-bottom: 2px; }
 .watch-proj { font-size: 10px; color: var(--muted); line-height: 1.4; }
 
-.drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200; backdrop-filter: blur(2px); }
-.drawer-overlay.open { display: block; }
+.drawer-overlay {
+  display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200;
+  backdrop-filter: blur(2px); opacity: 0; visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.drawer-overlay.open { opacity: 1; visibility: visible; }
 .drawer {
   position: fixed; top: 0; right: -600px; width: 580px; height: 100vh;
   background: var(--white); border-left: 0.5px solid var(--border);

@@ -14,8 +14,19 @@ export function fmtUSDWhole(n) {
 }
 
 export function fmtUSDK(n) {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`
   if (n >= 1000) return `$${Math.round(n / 1000)}k`
   return fmtUSDWhole(n)
+}
+
+export function fmtDonutCentre(n) {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 10_000) return `$${Math.round(n / 1000)}k`
+  return fmtUSDWhole(n)
+}
+
+export function fmtMillionShort(n) {
+  return `$${(n / 1_000_000).toFixed(2)} M`
 }
 
 export function formatVariancePct(variancePct) {

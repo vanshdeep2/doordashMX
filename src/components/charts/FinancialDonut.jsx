@@ -1,6 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 
-export default function FinancialDonut({ data, colors, size = 120, cutout = '72%' }) {
+export default function FinancialDonut({ data, colors, size = 120, cutout = '72%', animate = false }) {
   const chartData = data.map((value, i) => ({ value, color: colors[i] }))
 
   return (
@@ -16,7 +16,7 @@ export default function FinancialDonut({ data, colors, size = 120, cutout = '72%
           dataKey="value"
           stroke="none"
           cornerRadius={3}
-          isAnimationActive={false}
+          isAnimationActive={animate}
         >
           {chartData.map((entry) => (
             <Cell key={entry.color} fill={entry.color} />

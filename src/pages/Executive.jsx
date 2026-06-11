@@ -6,6 +6,7 @@ import NBACard from '../components/NBACard'
 import SparklineChart from '../components/charts/SparklineChart'
 import HealthScoreRing from '../components/charts/HealthScoreRing'
 import FinancialDonut from '../components/charts/FinancialDonut'
+import MerchantLtvSection from '../components/MerchantLtvSection'
 import {
   ACTUAL_AHT,
   CALLS_PILL,
@@ -17,6 +18,7 @@ import {
   WK5,
 } from '../data/executiveConstants'
 import { computeFinancials } from '../utils/financial'
+import { computeLtvFinancials, LTV_DEFAULTS } from '../utils/ltvFinancial'
 import {
   computeHealthScore,
   healthArcColor,
@@ -271,11 +273,22 @@ function DetailDrawer({ drawer, onClose, financials, targetAht }) {
   )
 }
 
-function FinancialSettingsDrawer({
+const LTV_FIELDS = [
+  { id: 'govBillions', label: 'DoorDash annual Marketplace GOV ($B)', step: 1 },
+  { id: 'merchantCount', label: 'Total merchant count', step: 1 },
+  { id: 'commissionRate', label: 'Average commission rate (%)', step: 0.1 },
+  { id: 'lifetimeYears', label: 'Average merchant lifetime (years)', step: 0.5 },
+  { id: 'cfChurnRisk', label: 'Churn risk - critical failure (%)', step: 0.5 },
+  { id: 'repeatChurnRisk', label: 'Churn risk - repeat contact (%)', step: 0.5 },
+  { id: 'unresolvedChurnRisk', label: 'Churn risk - unresolved contact (%)', step: 0.5 },
+]
+
+function LtvSettingsDrawer({
   open,
   onClose,
-  values,
+  draft,
   onChange,
+  onRecalculate,
   onReset,
 }) {
   if (!open) return null
@@ -285,57 +298,28 @@ function FinancialSettingsDrawer({
       <div className="drawer-overlay open" onClick={onClose} role="presentation" />
       <div className="drawer open">
         <div className="drawer-header">
-          <div className="drawer-title">Financial Assumptions</div>
+          <div className="drawer-title">LTV Assumptions</div>
           <button type="button" className="drawer-close" onClick={onClose} aria-label="Close">
             ✕
           </button>
         </div>
         <p className="drawer-subtitle">
-          Adjust operational assumptions for this demo period. All cost and revenue figures update from these values.
+          Adjust merchant LTV inputs. Click Recalculate to update all figures on the page.
         </p>
-        <div className="drawer-field">
-          <label htmlFor="input-target-aht">Target AHT (seconds)</label>
-          <input
-            id="input-target-aht"
-            type="number"
-            value={values.targetAht}
-            onChange={(e) => onChange('targetAht', Number(e.target.value))}
-          />
-          <div className="drawer-helper">Default: 450 (7m 30s)</div>
-        </div>
-        <div className="drawer-field">
-          <label htmlFor="input-cost-min">Cost per handle minute ($)</label>
-          <input
-            id="input-cost-min"
-            type="number"
-            step="0.01"
-            value={values.costPerMin}
-            onChange={(e) => onChange('costPerMin', Number(e.target.value))}
-          />
-          <div className="drawer-helper">Industry standard BPO rate for demo</div>
-        </div>
-        <div className="drawer-field">
-          <label htmlFor="input-esc-mult">Escalation cost multiplier</label>
-          <input
-            id="input-esc-mult"
-            type="number"
-            step="0.1"
-            value={values.escMultiplier}
-            onChange={(e) => onChange('escMultiplier', Number(e.target.value))}
-          />
-          <div className="drawer-helper">Specialist cost as multiple of T1 handle cost</div>
-        </div>
-        <div className="drawer-field">
-          <label htmlFor="input-weekly-calls">Weekly call volume</label>
-          <input
-            id="input-weekly-calls"
-            type="number"
-            value={values.weeklyCalls}
-            onChange={(e) => onChange('weeklyCalls', Number(e.target.value))}
-          />
-        </div>
-        <button type="button" className="btn-recalc" onClick={onClose}>
-          Apply assumptions
+        {LTV_FIELDS.map((field) => (
+          <div key={field.id} className="drawer-field">
+            <label htmlFor={`input-ltv-${field.id}`}>{field.label}</label>
+            <input
+              id={`input-ltv-${field.id}`}
+              type="number"
+              step={field.step}
+              value={draft[field.id]}
+              onChange={(e) => onChange(field.id, Number(e.target.value))}
+            />
+          </div>
+        ))}
+        <button type="button" className="btn-recalc" onClick={onRecalculate}>
+          Recalculate
         </button>
         <button type="button" className="drawer-reset" onClick={onReset}>
           Reset to defaults
@@ -346,19 +330,15 @@ function FinancialSettingsDrawer({
 }
 
 export default function Executive() {
-  const [targetAht, setTargetAht] = useState(DEFAULTS.targetAht)
-  const [costPerMin, setCostPerMin] = useState(DEFAULTS.costPerMin)
-  const [escMultiplier, setEscMultiplier] = useState(DEFAULTS.escMultiplier)
-  const [weeklyCalls, setWeeklyCalls] = useState(DEFAULTS.weeklyCalls)
   const [detailDrawer, setDetailDrawer] = useState(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [ltvAssumptions, setLtvAssumptions] = useState(LTV_DEFAULTS)
+  const [ltvDraft, setLtvDraft] = useState(LTV_DEFAULTS)
 
-  const financials = useMemo(
-    () => computeFinancials({ targetAht, costPerMin, escMultiplier, weeklyCalls }),
-    [targetAht, costPerMin, escMultiplier, weeklyCalls]
-  )
+  const financials = useMemo(() => computeFinancials(DEFAULTS), [])
+  const ltv = useMemo(() => computeLtvFinancials(ltvAssumptions), [ltvAssumptions])
 
-  const health = useMemo(() => computeHealthScore(targetAht), [targetAht])
+  const health = useMemo(() => computeHealthScore(DEFAULTS.targetAht), [])
   const healthColor = healthArcColor(health.health)
   const statusColor = healthStatusColor(health.health)
 
@@ -375,21 +355,21 @@ export default function Executive() {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [closeDrawers])
 
-  const handleAssumptionChange = (key, value) => {
-    const setters = {
-      targetAht: setTargetAht,
-      costPerMin: setCostPerMin,
-      escMultiplier: setEscMultiplier,
-      weeklyCalls: setWeeklyCalls,
-    }
-    setters[key](value)
+  useEffect(() => {
+    if (settingsOpen) setLtvDraft(ltvAssumptions)
+  }, [settingsOpen, ltvAssumptions])
+
+  const handleLtvDraftChange = (key, value) => {
+    setLtvDraft((prev) => ({ ...prev, [key]: value }))
   }
 
-  const resetDefaults = () => {
-    setTargetAht(DEFAULTS.targetAht)
-    setCostPerMin(DEFAULTS.costPerMin)
-    setEscMultiplier(DEFAULTS.escMultiplier)
-    setWeeklyCalls(DEFAULTS.weeklyCalls)
+  const handleLtvRecalculate = () => {
+    setLtvAssumptions(ltvDraft)
+    setSettingsOpen(false)
+  }
+
+  const resetLtvDefaults = () => {
+    setLtvDraft({ ...LTV_DEFAULTS })
   }
 
   const maxVol = Math.max(...DRIVER_ROWS.map((r) => r.volume))
@@ -503,7 +483,7 @@ export default function Executive() {
           <KPITile
             label="AHT · 5-week"
             value={formatAht(ACTUAL_AHT)}
-            target={`Target: ${formatAht(targetAht)}`}
+            target={`Target: ${formatAht(DEFAULTS.targetAht)}`}
             variance={`${formatVariancePct(financials.variancePct)} vs target`}
             varianceDirection={ahtVarianceDir}
             colour={financials.variancePct > 5 ? 'red' : financials.variancePct > 0 ? 'amber' : 'green'}
@@ -533,107 +513,7 @@ export default function Executive() {
           </KPITile>
         </div>
 
-        <div className="connector">Cost of Poor Quality · May 2026</div>
-        <p className="section-sublabel">Based on standard operational assumptions for this demo period</p>
-        <div className="fin-row">
-          <div className="fin-card" onClick={() => setDetailDrawer('cost')} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setDetailDrawer('cost')}>
-            <div className="fin-card-top">
-              <div className="fin-label">Cost Exposure · 5-week period</div>
-              <div className="fin-drill">View breakdown →</div>
-            </div>
-            <div className="fin-body">
-              <div className="donut-wrap">
-                <FinancialDonut data={financials.costDonut} colors={COST_DONUT_COLORS} />
-                <div className="donut-centre">
-                  <div className="donut-total val-red">{fmtUSD(financials.costTotal)}</div>
-                  <div className="donut-total-lbl">5 weeks</div>
-                </div>
-              </div>
-              <div className="fin-legend">
-                <div className="leg-item">
-                  <span className="leg-dot" style={{ background: '#c0392b' }} />
-                  <span className="leg-label">Wasted handle time</span>
-                  <span className="leg-val val-red">{fmtUSD(financials.wastePeriod)}</span>
-                </div>
-                <div className="leg-item">
-                  <span className="leg-dot" style={{ background: '#d9534f' }} />
-                  <span className="leg-label">Repeat contact cost</span>
-                  <span className="leg-val val-red">{fmtUSD(financials.repeat)}</span>
-                </div>
-                <div className="leg-item">
-                  <span className="leg-dot" style={{ background: '#e8806f' }} />
-                  <span className="leg-label">Escalation uplift cost</span>
-                  <span className="leg-val val-red">{fmtUSD(financials.escalation)}</span>
-                </div>
-                <div className="leg-divider" />
-                <div className="leg-item">
-                  <span className="leg-label" style={{ fontWeight: 600, color: 'var(--muted)' }}>Weekly waste</span>
-                  <span className="leg-val val-red">{fmtUSD(financials.weekly)}</span>
-                </div>
-                <div className="leg-item">
-                  <span className="leg-label" style={{ fontWeight: 600, color: 'var(--muted)' }}>Annualised</span>
-                  <span className="leg-val val-red">{fmtUSDK(financials.annual)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="fin-card" onClick={() => setDetailDrawer('revenue')} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setDetailDrawer('revenue')}>
-            <div className="fin-card-top">
-              <div className="fin-label">Revenue Opportunity · 5-week period</div>
-              <div className="fin-drill">View breakdown →</div>
-            </div>
-            <div className="fin-body">
-              <div className="donut-wrap">
-                <FinancialDonut data={financials.revDonut} colors={REV_DONUT_COLORS} />
-                <div className="donut-centre">
-                  <div className="donut-total val-green">{fmtUSD(financials.revTotal)}</div>
-                  <div className="donut-total-lbl">addressable</div>
-                </div>
-              </div>
-              <div className="fin-legend">
-                <div className="leg-item">
-                  <span className="leg-dot" style={{ background: '#1a7a4a' }} />
-                  <span className="leg-label">AHT coaching at scale</span>
-                  <span className="leg-val val-green">{fmtUSD(financials.revCoaching)}</span>
-                </div>
-                <div className="leg-item">
-                  <span className="leg-dot" style={{ background: '#228b5a' }} />
-                  <span className="leg-label">Payment protocol - repeat elimination</span>
-                  <span className="leg-val val-green">{fmtUSD(financials.revPayment)}</span>
-                </div>
-                <div className="leg-item">
-                  <span className="leg-dot" style={{ background: '#2fa870' }} />
-                  <span className="leg-label">Escalation coaching savings</span>
-                  <span className="leg-val val-green">{fmtUSD(financials.revEscSave)}</span>
-                </div>
-                <div className="leg-item">
-                  <span className="leg-dot" style={{ background: '#5ac490' }} />
-                  <span className="leg-label">FCR uplift on payment contacts</span>
-                  <span className="leg-val val-green">{fmtUSD(financials.revFcr)}</span>
-                </div>
-                <div className="leg-divider" />
-                <div className="leg-item">
-                  <span className="leg-label" style={{ fontWeight: 600, color: 'var(--muted)' }}>Annualised</span>
-                  <span className="leg-val val-green">{fmtUSDK(financials.annualRev)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="net-card">
-            <div className="net-eyebrow">Total value surfaced this period</div>
-            <div className="net-val">{fmtUSD(financials.netTotal)}</div>
-            <div className="net-sub">Cost exposure + revenue opportunity · 5-week period</div>
-          </div>
-        </div>
-
-        <div className="coq-assumptions-row">
-          <p className="coq-assumptions" style={{ marginBottom: 0, flex: 1 }}>
-            Assumptions: cost per handle minute ${costPerMin.toFixed(2)} (industry standard BPO rate), target AHT {formatAht(targetAht)}, escalation specialist cost {escMultiplier}× T1 rate, merchant churn-risk proxy $15 per avoidable repeat contact. All figures are estimates based on operational data and standard demo assumptions.
-          </p>
-          <button type="button" className="metrics-cta" onClick={() => setSettingsOpen(true)}>
-            Edit assumptions →
-          </button>
-        </div>
+        <MerchantLtvSection ltv={ltv} onOpenSettings={() => setSettingsOpen(true)} />
 
         <div className="connector">What is driving this.</div>
         <div className="driving-panel">
@@ -774,15 +654,16 @@ export default function Executive() {
         drawer={detailDrawer}
         onClose={() => setDetailDrawer(null)}
         financials={financials}
-        targetAht={targetAht}
+        targetAht={DEFAULTS.targetAht}
       />
 
-      <FinancialSettingsDrawer
+      <LtvSettingsDrawer
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
-        values={{ targetAht, costPerMin, escMultiplier, weeklyCalls }}
-        onChange={handleAssumptionChange}
-        onReset={resetDefaults}
+        draft={ltvDraft}
+        onChange={handleLtvDraftChange}
+        onRecalculate={handleLtvRecalculate}
+        onReset={resetLtvDefaults}
       />
     </>
   )
