@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AgentTlModal from '../components/AgentTlModal'
 import Nav from '../components/Nav'
 import FlowBar from '../components/FlowBar'
 import HealthStatCard from '../components/HealthStatCard'
@@ -28,6 +29,7 @@ import {
 import { AGENT_SLUGS } from '../data/contactSearchConstants'
 import { formatAht, fmtPct } from '../utils/format'
 import '../styles/ccm.css'
+import '../styles/teamlead.css'
 
 const coachingPeriodStart = WK_LABELS[COACHING_WEEK_INDEX]
 const coachingPeriodEnd = WK_LABELS[WK_LABELS.length - 1]
@@ -56,7 +58,25 @@ function DrawerTrendChart({ dataKey, color, formatValue }) {
 export default function CCM() {
   const navigate = useNavigate()
   const [metricsDrawerOpen, setMetricsDrawerOpen] = useState(false)
+  const [agentTlModalOpen, setAgentTlModalOpen] = useState(false)
+  const [agentTlModalSlug, setAgentTlModalSlug] = useState(null)
+  const [calls, setCalls] = useState([])
   const drawerSections = getMetricsDrawerSections()
+
+  useEffect(() => {
+    fetch('/data/contact_search_data.json')
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load contact data')
+        return r.json()
+      })
+      .then(setCalls)
+      .catch(() => setCalls([]))
+  }, [])
+
+  const openAgentModal = (slug) => {
+    setAgentTlModalSlug(slug)
+    setAgentTlModalOpen(true)
+  }
 
   const formatDrawerValue = (section, v) => {
     if (section.dataKey === 'aht') return formatAht(v)
@@ -251,9 +271,13 @@ export default function CCM() {
           rows={COACHING_LEDGER_ROWS.map((row) => (
             <tr key={row.agent + row.topic}>
               <td>
-                <Link to={`/agent/${AGENT_SLUGS[row.agent]}`} className="ledger-agent-link">
+                <button
+                  type="button"
+                  className="ledger-agent-link"
+                  onClick={() => openAgentModal(AGENT_SLUGS[row.agent])}
+                >
                   {row.agent}
-                </Link>
+                </button>
               </td>
               <td>{row.issue}</td>
               <td>{row.topic}</td>
@@ -335,6 +359,16 @@ export default function CCM() {
           </div>
         ))}
       </DrawerShell>
+
+      <AgentTlModal
+        open={agentTlModalOpen}
+        onClose={() => {
+          setAgentTlModalOpen(false)
+          setAgentTlModalSlug(null)
+        }}
+        slug={agentTlModalSlug}
+        calls={calls}
+      />
     </>
   )
 }
