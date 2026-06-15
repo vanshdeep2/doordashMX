@@ -1,3 +1,6 @@
+export const LTV_DEFAULT_ASSUMPTION_TEXT =
+  'DoorDash average merchant LTV calculated from Q2 2025 public filings ($97B annualised GOV, ~700,000 merchants, 15% commission rate, 3-year average merchant lifetime based on 85%+ quarterly retention). Churn risk rates - critical failure 15%, repeat contact 10%, unresolved contact 8% - are industry standard BPO estimates. Unique merchants affected by critical failures estimated conservatively at 40 (from quality cluster analysis). All figures are estimates.'
+
 export const RISK_LINES = [
   {
     key: 'cfRisk',

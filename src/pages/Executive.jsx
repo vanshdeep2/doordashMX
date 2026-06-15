@@ -7,6 +7,7 @@ import SparklineChart from '../components/charts/SparklineChart'
 import HealthScoreRing from '../components/charts/HealthScoreRing'
 import FinancialDonut from '../components/charts/FinancialDonut'
 import MerchantLtvSection from '../components/MerchantLtvSection'
+import { LTV_DEFAULT_ASSUMPTION_TEXT } from '../data/ltvCopy'
 import {
   ACTUAL_AHT,
   CALLS_PILL,
@@ -324,6 +325,11 @@ function LtvSettingsDrawer({
         <button type="button" className="drawer-reset" onClick={onReset}>
           Reset to defaults
         </button>
+        <div className="drawer-assumption-info">
+          <div className="drawer-assumption-info-heading">Assumption info</div>
+          <div className="drawer-assumption-info-label">Default Assumption</div>
+          <p className="drawer-assumption-info-text">{LTV_DEFAULT_ASSUMPTION_TEXT}</p>
+        </div>
       </div>
     </>
   )
